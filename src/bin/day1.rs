@@ -1,6 +1,4 @@
-use std::error::Error;
 use std::fs::read_to_string;
-use std::io;
 
 fn read_input(s: &str) -> Vec<u32> {
     s.lines().map(|s| s.parse().unwrap()).collect()
