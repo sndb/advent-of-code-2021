@@ -19,7 +19,7 @@ fn second_half(input: &[u32]) -> usize {
 }
 
 fn main() {
-    let input = read_to_string("day1_input.txt").unwrap();
+    let input = read_to_string("input/day1/input.txt").unwrap();
     let numbers = read_input(&input);
 
     println!("{}", first_half(&numbers));
