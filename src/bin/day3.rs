@@ -1,36 +1,34 @@
-use std::{collections::HashMap, fs::read_to_string};
+use std::fs::read_to_string;
 
 fn power_consumption(input: &str) -> u32 {
-    let count = input.lines().count();
-    let mut map = HashMap::new();
+    let input_len = input.lines().count();
+    let number_len = input.lines().next().unwrap().chars().count();
+    let mut map = vec![0; number_len];
 
-    for line in input.lines() {
-        for bit in line.chars().rev().enumerate() {
-            let (position, bit) = (bit.0, bit.1);
-            let counter = map.entry(position).or_insert(0);
-            if bit == '1' {
-                *counter += 1;
-            }
-        }
-    }
+    input.lines().for_each(|number| {
+        number
+            .chars()
+            .rev()
+            .enumerate()
+            .for_each(|(position, bit)| {
+                if bit == '1' {
+                    map[position] += 1
+                }
+            })
+    });
 
     let mut gamma_rate = 0;
-    let mut epsilon_rate = 0;
-    for (position, v) in map {
-        let zeros = count - v;
+    map.into_iter().enumerate().for_each(|(position, count)| {
+        gamma_rate |= if count > input_len - count { 1 } else { 0 } << position
+    });
 
-        let gamma_mask = if v > zeros { 1 } else { 0 } << position;
-        gamma_rate |= gamma_mask;
-
-        let epsilon_mask = if v > zeros { 0 } else { 1 } << position;
-        epsilon_rate |= epsilon_mask;
-    }
+    let epsilon_rate = gamma_rate ^ ((1 << number_len) - 1);
 
     gamma_rate * epsilon_rate
 }
 
 fn read_numbers(input: &str) -> (Vec<u32>, usize) {
-    let numbers: Vec<u32> = input
+    let numbers = input
         .lines()
         .map(|n| u32::from_str_radix(n, 2).unwrap())
         .collect();
@@ -39,7 +37,7 @@ fn read_numbers(input: &str) -> (Vec<u32>, usize) {
     (numbers, number_length)
 }
 
-fn life_support_rating(input: &str, prefer_zeros: bool) -> u32 {
+fn life_support_rating(input: &str, part: LifeSupportRatingPart) -> u32 {
     let (mut numbers, number_length) = read_numbers(input);
 
     for i in 1.. {
@@ -48,33 +46,41 @@ fn life_support_rating(input: &str, prefer_zeros: bool) -> u32 {
         }
 
         let mask = 1 << (number_length - i);
-        let count = numbers.iter().filter(|&n| n & mask != 0).count();
+        let ones = numbers.iter().filter(|&n| n & mask > 0).count();
+        let zeros = numbers.len() - ones;
 
-        let (nn0, nn1) = numbers.iter().partition(|&n| n & mask == 0);
-        numbers = if count >= numbers.len() - count {
-            if prefer_zeros {
-                nn0
-            } else {
-                nn1
+        numbers.retain(|&n| match part {
+            LifeSupportRatingPart::OxygenGeneratorRating => {
+                if ones >= zeros {
+                    n & mask > 0
+                } else {
+                    n & mask == 0
+                }
             }
-        } else {
-            if prefer_zeros {
-                nn1
-            } else {
-                nn0
+            LifeSupportRatingPart::Co2ScrubberRating => {
+                if ones >= zeros {
+                    n & mask == 0
+                } else {
+                    n & mask > 0
+                }
             }
-        }
+        });
     }
 
     numbers[0]
 }
 
+enum LifeSupportRatingPart {
+    OxygenGeneratorRating,
+    Co2ScrubberRating,
+}
+
 fn oxygen_generator_rating(input: &str) -> u32 {
-    life_support_rating(input, false)
+    life_support_rating(input, LifeSupportRatingPart::OxygenGeneratorRating)
 }
 
 fn co2_scrubber_rating(input: &str) -> u32 {
-    life_support_rating(input, true)
+    life_support_rating(input, LifeSupportRatingPart::Co2ScrubberRating)
 }
 
 fn main() {
