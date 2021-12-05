@@ -14,43 +14,61 @@ struct Line {
 }
 
 impl Line {
+    fn x1(&self) -> u32 {
+        self.a.0
+    }
+
+    fn x2(&self) -> u32 {
+        self.b.0
+    }
+
+    fn y1(&self) -> u32 {
+        self.a.1
+    }
+
+    fn y2(&self) -> u32 {
+        self.b.1
+    }
+
+    fn min_x(&self) -> u32 {
+        u32::min(self.x1(), self.x2())
+    }
+
+    fn max_x(&self) -> u32 {
+        u32::max(self.x1(), self.x2())
+    }
+
+    fn min_y(&self) -> u32 {
+        u32::min(self.y1(), self.y2())
+    }
+
+    fn max_y(&self) -> u32 {
+        u32::max(self.y1(), self.y2())
+    }
+
     fn is_straight(&self) -> bool {
-        self.a.0 == self.b.0 || self.a.1 == self.b.1
+        self.x1() == self.x2() || self.y1() == self.y2()
     }
 
     fn points_straight(&self) -> Vec<(u32, u32)> {
-        let mut points = Vec::new();
-
-        if !self.is_straight() {
-            return points;
+        if self.is_straight() {
+            (self.min_x()..=self.max_x())
+                .flat_map(|x| (self.min_y()..=self.max_y()).map(move |y| (x, y)))
+                .collect()
+        } else {
+            Vec::new()
         }
-
-        for x in self.a.0.min(self.b.0)..=self.a.0.max(self.b.0) {
-            for y in self.a.1.min(self.b.1)..=self.a.1.max(self.b.1) {
-                points.push((x, y));
-            }
-        }
-
-        points
     }
 
     fn points(&self) -> Vec<(u32, u32)> {
-        let mut points = Vec::new();
-
         if self.is_straight() {
-            for x in self.a.0.min(self.b.0)..=self.a.0.max(self.b.0) {
-                for y in self.a.1.min(self.b.1)..=self.a.1.max(self.b.1) {
-                    points.push((x, y));
-                }
-            }
+            self.points_straight()
         } else {
-            points = in_between(self.a.0, self.b.0)
+            in_between(self.x1(), self.x2())
                 .into_iter()
-                .zip(in_between(self.a.1, self.b.1).into_iter())
+                .zip(in_between(self.y1(), self.y2()).into_iter())
                 .collect()
         }
-
-        points
     }
 }
 
@@ -70,17 +88,17 @@ impl FromStr for Line {
     }
 }
 
-fn count_overlapping_points(
-    input: &str,
-    points_generator: impl Fn(&Line) -> Vec<(u32, u32)>,
-) -> usize {
+fn count_overlapping_points<F>(input: &str, line_to_points: F) -> usize
+where
+    F: Fn(&Line) -> Vec<(u32, u32)>,
+{
     let mut overlapping_points: HashMap<(u32, u32), u32> = HashMap::new();
 
-    for line in input.lines().map(|line| line.parse::<Line>().unwrap()) {
-        for p in points_generator(&line) {
-            *overlapping_points.entry(p).or_insert(0) += 1;
-        }
-    }
+    input
+        .lines()
+        .map(|line| line.parse::<Line>().unwrap())
+        .flat_map(|line| line_to_points(&line))
+        .for_each(|point| *overlapping_points.entry(point).or_insert(0) += 1);
 
     overlapping_points
         .into_iter()

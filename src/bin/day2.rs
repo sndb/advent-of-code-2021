@@ -79,14 +79,14 @@ fn main() {
     let mut submarine = Submarine::new();
     input
         .lines()
-        .map(|l| Operation::new(&l))
+        .map(|l| Operation::new(l))
         .for_each(|op| submarine.pilot(op));
     println!("{}", submarine.horizontal_position * submarine.depth);
 
     let mut submarine2 = Submarine2::new();
     input
         .lines()
-        .map(|l| Operation::new(&l))
+        .map(|l| Operation::new(l))
         .for_each(|op| submarine2.pilot(op));
     println!("{}", submarine2.horizontal_position * submarine2.depth);
 }

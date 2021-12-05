@@ -16,7 +16,7 @@ impl Numbers {
 
 impl From<&[u32]> for Numbers {
     fn from(numbers: &[u32]) -> Self {
-        Numbers(numbers.iter().map(|n| *n).collect::<Vec<u32>>())
+        Numbers(numbers.iter().copied().collect::<Vec<u32>>())
     }
 }
 
@@ -98,7 +98,7 @@ impl BingoSubsystem {
     fn new(input: &str) -> BingoSubsystem {
         let mut parts = input.split("\n\n");
         let numbers = Numbers::new(parts.next().unwrap());
-        let boards = parts.map(|p| Board::new(p)).collect();
+        let boards = parts.map(Board::new).collect();
 
         BingoSubsystem { boards, numbers }
     }
