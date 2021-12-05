@@ -89,7 +89,7 @@ fn count_overlapping_points(
 }
 
 fn main() {
-    let input = read_to_string("input/day5/input.txt").unwrap();
+    let input = read_to_string("input/day5/input").unwrap();
 
     println!(
         "{} {}",

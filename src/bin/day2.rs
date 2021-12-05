@@ -74,7 +74,7 @@ impl Submarine2 {
 }
 
 fn main() {
-    let input = read_to_string("input/day2/input.txt").unwrap();
+    let input = read_to_string("input/day2/input").unwrap();
 
     let mut submarine = Submarine::new();
     input

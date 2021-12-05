@@ -84,7 +84,7 @@ fn co2_scrubber_rating(input: &str) -> u32 {
 }
 
 fn main() {
-    let input = read_to_string("input/day3/input.txt").unwrap();
+    let input = read_to_string("input/day3/input").unwrap();
 
     println!("{}", power_consumption(&input));
     println!(

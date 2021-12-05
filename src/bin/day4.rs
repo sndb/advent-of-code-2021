@@ -105,7 +105,7 @@ impl BingoSubsystem {
 }
 
 fn main() {
-    let input = read_to_string("input/day4/input.txt").unwrap();
+    let input = read_to_string("input/day4/input").unwrap();
     let mut bingo = BingoSubsystem::new(&input);
 
     'outer: for i in 5..bingo.numbers.0.len() {
