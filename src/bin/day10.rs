@@ -75,7 +75,7 @@ fn main() {
         )
     }
 
-    scores.sort();
+    scores.sort_unstable();
 
     let middle_score = scores[scores.len() / 2];
     println!("{}", middle_score);

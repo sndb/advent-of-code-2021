@@ -1,9 +1,6 @@
 use std::fs::read_to_string;
 
-fn traverse_basin(
-    height_map: &Vec<Vec<u32>>,
-    starting_point: (usize, usize),
-) -> Vec<(usize, usize)> {
+fn traverse_basin(height_map: &[Vec<u32>], starting_point: (usize, usize)) -> Vec<(usize, usize)> {
     if height_map[starting_point.0][starting_point.1] == 9 {
         return Vec::new();
     }
@@ -14,7 +11,7 @@ fn traverse_basin(
     let mut known_points: Vec<(usize, usize)> = Vec::new();
     let mut to_traverse: Vec<(usize, usize)> = vec![starting_point];
 
-    while to_traverse.len() > 0 {
+    while !to_traverse.is_empty() {
         let initial_position = to_traverse[0];
         to_traverse.remove(0);
 
@@ -110,7 +107,7 @@ fn main() {
             }
         }
     }
-    basin_sizes.sort();
+    basin_sizes.sort_unstable();
     println!(
         "{}",
         basin_sizes.into_iter().rev().take(3).product::<usize>()

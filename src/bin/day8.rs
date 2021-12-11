@@ -4,7 +4,7 @@ fn parse_input(input: &str) -> Vec<(Vec<String>, Vec<String>)> {
     input
         .lines()
         .map(|line| {
-            line.splitn(2, "|")
+            line.splitn(2, '|')
                 .map(|split| split.trim().split_whitespace().map(|s| s.to_string()))
         })
         .map(|mut splits| {
@@ -37,7 +37,7 @@ fn main() {
 
     let mut total = 0;
     for (mut signal_pattern, output_value) in data {
-        signal_pattern.sort_by(|a, b| a.len().cmp(&b.len()));
+        signal_pattern.sort_by_key(|p| p.len());
 
         let (one, seven, four, eight) = (
             &signal_pattern[0],
@@ -57,7 +57,7 @@ fn main() {
         for pattern in &signal_pattern {
             if pattern.len() == 5 {
                 if is_within(one, pattern) {
-                    three = &pattern;
+                    three = pattern;
                 } else if pattern
                     .chars()
                     .collect::<HashSet<char>>()
@@ -65,7 +65,7 @@ fn main() {
                     .count()
                     == 3
                 {
-                    five = &pattern;
+                    five = pattern;
                 } else if pattern
                     .chars()
                     .collect::<HashSet<char>>()
@@ -73,7 +73,7 @@ fn main() {
                     .count()
                     == 2
                 {
-                    two = &pattern;
+                    two = pattern;
                 }
             }
         }
@@ -81,11 +81,11 @@ fn main() {
         for pattern in &signal_pattern {
             if pattern.len() == 6 {
                 if is_within(three, pattern) {
-                    nine = &pattern;
+                    nine = pattern;
                 } else if is_within(seven, pattern) && !is_within(three, pattern) {
-                    zero = &pattern;
+                    zero = pattern;
                 } else if !is_within(seven, pattern) && !is_within(three, pattern) {
-                    six = &pattern;
+                    six = pattern;
                 }
             }
         }
