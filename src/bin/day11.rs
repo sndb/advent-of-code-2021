@@ -20,15 +20,39 @@ fn values_to_process(data: &[Vec<Octopus>]) -> usize {
 
     for xs in data {
         for x in xs {
-            if let Octopus::Energy(n) = *x {
-                if n > 9 {
-                    count += 1;
-                }
+            if let Octopus::Energy(10..) = x {
+                count += 1;
             }
         }
     }
 
     count
+}
+
+fn apply_to_surrounding_elements<F>(data: &mut [Vec<Octopus>], y: usize, x: usize, f: F)
+where
+    F: Fn(&mut Octopus),
+{
+    for i in 0..=2 {
+        for j in 0..=2 {
+            if (i, j) == (1, 1) {
+                continue;
+            }
+
+            let i = match (y + 1).checked_sub(i) {
+                Some(x) => x,
+                None => continue,
+            };
+            let j = match (x + 1).checked_sub(j) {
+                Some(x) => x,
+                None => continue,
+            };
+
+            if let Some(octopus) = data.get_mut(i).and_then(|v| v.get_mut(j)) {
+                f(octopus);
+            }
+        }
+    }
 }
 
 fn simulate_flashing(data: &mut [Vec<Octopus>]) -> usize {
@@ -39,59 +63,14 @@ fn simulate_flashing(data: &mut [Vec<Octopus>]) -> usize {
             for x in 0..data[0].len() {
                 if let Octopus::Energy(10..) = data[y][x] {
                     data[y][x] = Octopus::Flashing;
+
                     flashes += 1;
 
-                    if y > 0 && x > 0 {
-                        if let Some(Octopus::Energy(n)) =
-                            data.get_mut(y - 1).and_then(|v| v.get_mut(x - 1))
-                        {
-                            *n += 1;
+                    apply_to_surrounding_elements(data, y, x, |octopus| {
+                        if let Octopus::Energy(n) = octopus {
+                            *n += 1
                         }
-                    }
-
-                    if y > 0 {
-                        if let Some(Octopus::Energy(n)) =
-                            data.get_mut(y - 1).and_then(|v| v.get_mut(x))
-                        {
-                            *n += 1;
-                        }
-
-                        if let Some(Octopus::Energy(n)) =
-                            data.get_mut(y - 1).and_then(|v| v.get_mut(x + 1))
-                        {
-                            *n += 1;
-                        }
-                    }
-
-                    if x > 0 {
-                        if let Some(Octopus::Energy(n)) =
-                            data.get_mut(y).and_then(|v| v.get_mut(x - 1))
-                        {
-                            *n += 1;
-                        }
-
-                        if let Some(Octopus::Energy(n)) =
-                            data.get_mut(y + 1).and_then(|v| v.get_mut(x - 1))
-                        {
-                            *n += 1;
-                        }
-                    }
-
-                    if let Some(Octopus::Energy(n)) = data.get_mut(y).and_then(|v| v.get_mut(x + 1))
-                    {
-                        *n += 1;
-                    }
-
-                    if let Some(Octopus::Energy(n)) = data.get_mut(y + 1).and_then(|v| v.get_mut(x))
-                    {
-                        *n += 1;
-                    }
-
-                    if let Some(Octopus::Energy(n)) =
-                        data.get_mut(y + 1).and_then(|v| v.get_mut(x + 1))
-                    {
-                        *n += 1;
-                    }
+                    });
                 }
             }
         }
