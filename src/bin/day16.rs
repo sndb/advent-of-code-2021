@@ -49,7 +49,7 @@ struct LiteralValuePacket {
 
 impl LiteralValuePacket {
     fn new(s: &str) -> LiteralValuePacket {
-        let header = Header::new(&s);
+        let header = Header::new(s);
         let (value, mut bits) = value_from_groups(&s[6..]);
         bits += Header::BITS;
 
@@ -69,7 +69,7 @@ enum PacketLength {
 
 impl PacketLength {
     fn new(s: &str) -> PacketLength {
-        if s.chars().next().unwrap() == '0' {
+        if s.starts_with('0') {
             PacketLength::Bits(bin_to_dec(&s[1..16]).unwrap().try_into().unwrap())
         } else {
             PacketLength::Number(bin_to_dec(&s[1..12]).unwrap().try_into().unwrap())
@@ -94,7 +94,7 @@ struct OperatorPacket {
 
 impl OperatorPacket {
     fn new(s: &str) -> OperatorPacket {
-        let header = Header::new(&s);
+        let header = Header::new(s);
         let length = PacketLength::new(&s[6..]);
         let mut subpackets = Vec::new();
         let mut bits = Header::BITS + length.bits();
@@ -135,12 +135,12 @@ enum Packet {
 
 impl Packet {
     fn new(s: &str) -> Packet {
-        let header = Header::new(&s);
+        let header = Header::new(s);
 
         if header.is_literal_value() {
-            Packet::LiteralValue(LiteralValuePacket::new(&s))
+            Packet::LiteralValue(LiteralValuePacket::new(s))
         } else {
-            Packet::Operator(OperatorPacket::new(&s))
+            Packet::Operator(OperatorPacket::new(s))
         }
     }
 
